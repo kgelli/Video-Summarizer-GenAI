@@ -24,5 +24,5 @@ Before running the application, ensure you have the following:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/kgelli/video-summarizer-genai.git
-cd video-summarizer-genai
+git clone https://github.com/kgelli/Video-Summarizer-GenAI.git
+cd Video-Summarizer-GenAI
