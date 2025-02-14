@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Summarizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: #fff;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            font-size: 2.5em;
+        }
+        form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        input[type="button"]:hover {
+            background-color: #45a049;
+        }
+        .response {
+            margin-top: 20px;
+        }
+        /* Gradient animation */
+        @keyframes changeGradient {
+            0% {
+                background: linear-gradient(135deg, #6e8efb, #a777e3);
+            }
+            50% {
+                background: linear-gradient(135deg, #6e8efb, #fa8231);
+            }
+            100% {
+                background: linear-gradient(135deg, #6e8efb, #64b678);
+            }
+        }
+        body {
+            animation: changeGradient 10s ease infinite;
+        }
+        /* Progress bar */
+        .progress-bar {
+            margin-top: 20px;
+            width: 100%;
+            background-color: #f1f1f1;
+            border-radius: 10px;
+            overflow: hidden;
+            display: none; /* Initially hidden */
+        }
+        .progress {
+            width: 0;
+            height: 20px;
+            background-color: #4CAF50;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+        }
+    </style>
+    <script>
+        function uploadAndSummarize() {
+            const form = document.getElementById('uploadForm');
+            const formData = new FormData(form);
+            const progressBar = document.getElementById('progressBar');
+            const progress = document.getElementById('progress');
+
+            // Show progress bar
+            progressBar.style.display = 'block';
+
+            fetch('/cgi-bin/upload_video.py', {
+                method: 'POST',
+                body: formData,
+                // Add progress event to update progress bar
+                onUploadProgress: function(progressEvent) {
+                    const { loaded, total } = progressEvent;
+                    const percentComplete = (loaded / total) * 100;
+                    progress.style.width = percentComplete.toFixed(2) + '%';
+                    progress.innerHTML = percentComplete.toFixed(2) + '%';
+                }
+            })
+            .then(response => response.text())
+            .then(summary => {
+                // Hide progress bar after upload is complete
+                progressBar.style.display = 'none';
+                // Display summary
+                document.getElementById('summary').innerHTML = `<h2>Summary of the video:</h2><p>${summary}</p>`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Video Summarizer</h1>
+    <form id="uploadForm" enctype="multipart/form-data" method="post">
+        <input type="file" name="file" accept="video/mp4">
+        <input type="button" value="Upload and Summarize" onclick="uploadAndSummarize()">
+    </form>
+    <div class="progress-bar" id="progressBar">
+        <div class="progress" id="progress">0%</div>
+    </div>
+    <div class="response" id="summary">
+        <!-- The response from the server will be inserted here -->
+    </div>
+</body>
+</html>
